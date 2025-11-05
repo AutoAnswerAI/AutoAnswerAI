@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7096d1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.info {
+            background: #2196F3;
+        }
+
+        .notification.warning {
+            background: #ff9800;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 10px;
+            float: right;
+        }
+
+        /* Method Selection */
+        .method-selection {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            border-left: 4px solid #2a5298;
+        }
+
+        .method-title {
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .method-options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .method-option {
+            flex: 1;
+        }
+
+        .method-option input {
+            display: none;
+        }
+
+        .method-option label {
+            display: block;
+            padding: 10px;
+            text-align: center;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .method-option input:checked + label {
+            background: #2a5298;
+            color: white;
+            border-color: #2a5298;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .method-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Contact Information</h1>
+        
+        <!-- Method Selection -->
+        <div class="method-selection">
+            <div class="method-title">Choose submission method:</div>
+            <div class="method-options">
+                <div class="method-option">
+                    <input type="radio" id="method1" name="submission-method" value="formsubmit" checked>
+                    <label for="method1">FormSubmit</label>
+                </div>
+                <div class="method-option">
+                    <input type="radio" id="method2" name="submission-method" value="getform">
+                    <label for="method2">GetForm</label>
+                </div>
+            </div>
+        </div>
+        
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="+1 (555) 000-0000">
+            </div>
+
+            <div class="form-group">
+                <label for="business">Business Field *</label>
+                <select id="business" name="business" required>
+                    <option value="">Select your business field</option>
+                    <option value="technology">Technology & IT</option>
+                    <option value="healthcare">Healthcare & Medical</option>
+                    <option value="finance">Finance & Banking</option>
+                    <option value="education">Education & Training</option>
+                    <option value="retail">Retail & E-commerce</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="real-estate">Real Estate</option>
+                    <option value="hospitality">Hospitality & Tourism</option>
+                    <option value="marketing">Marketing & Advertising</option>
+                    <option value="legal">Legal Services</option>
+                    <option value="consulting">Consulting</option>
+                    <option value="construction">Construction</option>
+                    <option value="automotive">Automotive</option>
+                    <option value="entertainment">Entertainment & Media</option>
+                    <option value="food-beverage">Food & Beverage</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Submit
+            </button>
+        </form>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Notification system
+        function showNotification(message, type = 'info', duration = 5000) {
+            const notificationContainer = document.getElementById('notificationContainer');
+            const notificationId = 'notification-' + Date.now();
+            
+            const notification = document.createElement('div');
+            notification.id = notificationId;
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                ${message}
+                <button class="notification-close" onclick="closeNotification('${notificationId}')">&times;</button>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            
+            // Trigger animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Auto-close after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    closeNotification(notificationId);
+                }, duration);
+            }
+            
+            return notificationId;
+        }
+        
+        function closeNotification(id) {
+            const notification = document.getElementById(id);
+            if (notification) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }
+        
+        // Form submission handler
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                business: document.getElementById('business').value,
+                _subject: "New Contact Form Submission from " + document.getElementById('name').value
+            };
+            
+            // Get selected method
+            const selectedMethod = document.querySelector('input[name="submission-method"]:checked').value;
+            
+            try {
+                if (selectedMethod === 'formsubmit') {
+                    await submitViaFormSubmit(formData);
+                } else {
+                    await submitViaGetForm(formData);
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showNotification('There was an error submitting your form. Please try again.', 'error');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+        
+        // Method 1: Using FormSubmit
+        async function submitViaFormSubmit(formData) {
+            // Replace with your actual FormSubmit endpoint
+            const formSubmitEndpoint = "https://formsubmit.co/ajax/orangedesign7@gmail.com";
+            
+            try {
+                const response = await fetch(formSubmitEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('Thank you! Your information has been submitted successfully via FormSubmit.', 'success');
+                        document.getElementById('contactForm').reset();
+                    } else {
+                        throw new Error('FormSubmit returned success:false');
+                    }
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('FormSubmit error:', error);
+                showNotification('There was an error submitting via FormSubmit. Please try again.', 'error');
+                throw error;
+            }
+        }
+        
+        // Method 2: Using GetForm
+        async function submitViaGetForm(formData) {
+            // Replace with your actual GetForm endpoint
+            const getFormEndpoint = "https://getform.io/f/your-form-endpoint-here";
+            
+            try {
+                const response = await fetch(getFormEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    showNotification('Thank you! Your information has been submitted successfully via GetForm.', 'success');
+                    document.getElementById('contactForm').reset();
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('GetForm error:', error);
+                showNotification('There was an error submitting via GetForm. Please try again.', 'error');
+                throw error;
+            }
+        }
+        
+        // Demo mode notification
+        document.addEventListener('DOMContentLoaded', function() {
+            showNotification(
+                'This is a demo. To make it work, replace the endpoint URLs with your actual FormSubmit/GetForm endpoints.', 
+                'info', 
+                8000
+            );
+        });
+    </script>
+</body>
+</html>
